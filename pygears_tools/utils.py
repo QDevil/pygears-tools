@@ -277,6 +277,7 @@ def custom_run(pkg, cmd_set):
         if not pkg['dry_run']:
             subprocess.check_output("{} > {} 2>&1".format(cmd, log_file), shell=True)
 
+
 def pip_install(pkg, pyenv):
     if pyenv:
         cmd = f'pip3 install -U {pkg["pip"]}'
@@ -286,4 +287,15 @@ def pip_install(pkg, pyenv):
     log_file = os.path.join(pkg["install_path"], "pip.log")
     pkg["logger"].info('Command: "{}"'.format(cmd))
     if not pkg['dry_run']:
-        subprocess.check_output(f"{cmd} > {log_file} 2>&1", shell=True)
+        tries = 7
+        while tries > 0:
+            try:
+                subprocess.check_output(f"{cmd} > {log_file} 2>&1", shell=True)
+                return
+            except Exception:
+                tries -= 1
+                import time
+                time.sleep(1)
+                pkg["logger"].info('Retrying')
+        pkg["logger"].info('FAILED')
+        raise ValueError(f'FAILED: {cmd}')
