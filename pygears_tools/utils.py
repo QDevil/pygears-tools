@@ -43,7 +43,7 @@ def download_source(pkg):
         tries = 7
         while tries > 0:
             try:
-                urllib.request.urlretrieve(url, pth)
+                urllib.request.urlretrieve(url, pth, dlProgress)
             except Exception:
                 tries -= 1
                 time.sleep(1)
@@ -66,7 +66,6 @@ class ProgressFileObject(io.FileIO):
         percent = int(self.tell() * 100 / self._total_size)
         if percent != self._last_percent:
             self._last_percent = percent
-            # sys.stdout.write("\r[" + pkg["name"] + "] Downloading " + self._fn + "... [%d%%]" % percent)
             sys.stdout.write("\rProgress: %d%%" % percent)
             sys.stdout.flush()
 
