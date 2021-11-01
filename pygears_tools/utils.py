@@ -292,10 +292,10 @@ def custom_run(pkg, cmd_set):
 
 
 def pip_install(pkg, pyenv):
-    if pyenv:
-        cmd = f'pip3 install -U {pkg["pip"]}'
-    else:
-        cmd = f'sudo pip3 install -U {pkg["pip"]}'
+    # if not pyenv:
+    #     cmd = f'sudo pip3 install -U {pkg["pip"]}'
+    # else:
+    cmd = f'pip3 install -U {pkg["pip"]}'
 
     log_file = os.path.join(pkg["install_path"], "pip.log")
     pkg["logger"].info('Command: "{}"'.format(cmd))
