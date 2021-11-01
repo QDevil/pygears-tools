@@ -6,6 +6,7 @@ import sys
 import subprocess
 import os
 import shutil
+import time
 
 
 def os_name():
@@ -29,8 +30,6 @@ def get_url_archive_path(pkg):
 
 
 def download_source(pkg):
-    fn = get_url_archive_file_name(pkg)
-
     def dlProgress(count, blockSize, totalSize):
         percent = int(count * blockSize * 100 / totalSize)
         sys.stdout.write("\rProgress: %d%%" % percent)
@@ -39,10 +38,20 @@ def download_source(pkg):
     pkg["logger"].info("Downloading " + pkg["url"])
 
     if not pkg['dry_run']:
-        urllib.request.urlretrieve(pkg["url"], get_url_archive_path(pkg), dlProgress)
-        sys.stdout.write("\n")
+        url = pkg['url']
+        pth = get_url_archive_path(pkg)
+        tries = 7
+        while tries > 0:
+            try:
+                urllib.request.urlretrieve(url, pth)
+            except Exception:
+                tries -= 1
+                time.sleep(1)
+                pkg['logger'].info('Retrying')
+        pkg['logger'].info('FAILED')
+        raise ValueError(f'FAILED: {url}')
 
-    return fn
+    return get_url_archive_file_name(pkg)
 
 
 class ProgressFileObject(io.FileIO):
@@ -294,8 +303,7 @@ def pip_install(pkg, pyenv):
                 return
             except Exception:
                 tries -= 1
-                import time
                 time.sleep(1)
-                pkg["logger"].info('Retrying')
-        pkg["logger"].info('FAILED')
+                pkg['logger'].info('Retrying')
+        pkg['logger'].info('FAILED')
         raise ValueError(f'FAILED: {cmd}')
