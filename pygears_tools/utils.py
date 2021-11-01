@@ -300,14 +300,14 @@ def pip_install(pkg, pyenv):
     log_file = os.path.join(pkg["install_path"], "pip.log")
     pkg["logger"].info('Command: "{}"'.format(cmd))
     if not pkg['dry_run']:
-        tries = 7
+        tries = 17
         while tries > 0:
             try:
                 subprocess.check_output(f"{cmd} > {log_file} 2>&1", shell=True)
                 return
-            except Exception:
+            except Exception as error:
                 tries -= 1
                 time.sleep(1)
-                pkg['logger'].info('Retrying')
+                pkg['logger'].info(f'Retrying ({repr(error)})')
         pkg['logger'].info('FAILED')
         raise ValueError(f'FAILED: {cmd}')
