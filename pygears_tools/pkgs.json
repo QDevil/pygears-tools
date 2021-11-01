@@ -30,7 +30,7 @@
         "name": "verilator",
         "class": ["all", "dev", "gui", "min"],
         "flow": "default_cpp",
-        "url": "https://www.veripool.org/ftp/verilator-4.020.tgz",
+        "url": "https://qdevil-public.s3.eu-west-1.amazonaws.com/development/verilator-4.020.tgz",
         "src_root_path": "{install_path}/verilator-4.020",
         "pre_custom_runl": ["export VERILATOR_ROOT={path}"],
         "post_custom_runl": [
@@ -65,7 +65,7 @@
         "name": "gtkwave",
         "class": ["all", "dev", "gui"],
         "flow": "default_cpp",
-        "url": "http://gtkwave.sourceforge.net/gtkwave-gtk3-3.3.98.tar.gz",
+        "url": "https://qdevil-public.s3.eu-west-1.amazonaws.com/development/gtkwave-gtk3-3.3.98.tar.gz",
         "pre_custom_run": [
             "patch {src_root_path}/src/tcl_commands.c < {install_script_path}/gtkwave/tcl_commands.diff",
             "patch {src_root_path}/src/tcl_support_commands.c < {install_script_path}/gtkwave/tcl_support_commands.diff",
@@ -152,7 +152,7 @@
     {
         "name": "graphviz",
         "class": ["all", "dev", "gui"],
-        "url": "http://pkgs.fedoraproject.org/repo/pkgs/graphviz/graphviz-2.38.0.tar.gz/5b6a829b2ac94efcd5fa3c223ed6d3ae/graphviz-2.38.0.tar.gz",
+        "url": "https://qdevil-public.s3.eu-west-1.amazonaws.com/development/graphviz-2.38.0.tar.gz",
         "src_root_path": "{install_path}/graphviz-2.38.0",
         "flow": "default_cpp",
         "configure": "",
