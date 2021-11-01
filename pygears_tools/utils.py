@@ -6,6 +6,7 @@ import sys
 import subprocess
 import os
 import shutil
+import time
 
 
 def os_name():
@@ -29,20 +30,33 @@ def get_url_archive_path(pkg):
 
 
 def download_source(pkg):
-    fn = get_url_archive_file_name(pkg)
-
     def dlProgress(count, blockSize, totalSize):
         percent = int(count * blockSize * 100 / totalSize)
         sys.stdout.write("\rProgress: %d%%" % percent)
         sys.stdout.flush()
 
+    def download_url(url, pth):
+        tries = 7
+        while tries > 0:
+            try:
+                urllib.request.urlretrieve(url, pth, dlProgress)
+                sys.stdout.write("\n")
+                return
+            except Exception:
+                tries -= 1
+                time.sleep(1)
+                pkg['logger'].info('Retrying')
+        pkg['logger'].info('FAILED')
+        raise ValueError(f'FAILED: {url}')
+
     pkg["logger"].info("Downloading " + pkg["url"])
 
     if not pkg['dry_run']:
-        urllib.request.urlretrieve(pkg["url"], get_url_archive_path(pkg), dlProgress)
-        sys.stdout.write("\n")
+        url = pkg['url']
+        pth = get_url_archive_path(pkg)
+        download_url(url, pth)
 
-    return fn
+    return get_url_archive_file_name(pkg)
 
 
 class ProgressFileObject(io.FileIO):
@@ -57,7 +71,6 @@ class ProgressFileObject(io.FileIO):
         percent = int(self.tell() * 100 / self._total_size)
         if percent != self._last_percent:
             self._last_percent = percent
-            # sys.stdout.write("\r[" + pkg["name"] + "] Downloading " + self._fn + "... [%d%%]" % percent)
             sys.stdout.write("\rProgress: %d%%" % percent)
             sys.stdout.flush()
 
@@ -279,23 +292,22 @@ def custom_run(pkg, cmd_set):
 
 
 def pip_install(pkg, pyenv):
-    if pyenv:
-        cmd = f'pip3 install -U {pkg["pip"]}'
-    else:
-        cmd = f'sudo pip3 install -U {pkg["pip"]}'
+    # if not pyenv:
+    #     cmd = f'sudo pip3 install -U {pkg["pip"]}'
+    # else:
+    cmd = f'pip3 install -U {pkg["pip"]}'
 
     log_file = os.path.join(pkg["install_path"], "pip.log")
     pkg["logger"].info('Command: "{}"'.format(cmd))
     if not pkg['dry_run']:
-        tries = 7
+        tries = 17
         while tries > 0:
             try:
                 subprocess.check_output(f"{cmd} > {log_file} 2>&1", shell=True)
                 return
-            except Exception:
+            except Exception as error:
                 tries -= 1
-                import time
                 time.sleep(1)
-                pkg["logger"].info('Retrying')
-        pkg["logger"].info('FAILED')
+                pkg['logger'].info(f'Retrying ({repr(error)})')
+        pkg['logger'].info('FAILED')
         raise ValueError(f'FAILED: {cmd}')
