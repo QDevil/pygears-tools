@@ -35,21 +35,26 @@ def download_source(pkg):
         sys.stdout.write("\rProgress: %d%%" % percent)
         sys.stdout.flush()
 
-    pkg["logger"].info("Downloading " + pkg["url"])
-
-    if not pkg['dry_run']:
-        url = pkg['url']
-        pth = get_url_archive_path(pkg)
+    def download_url(url, pth):
         tries = 7
         while tries > 0:
             try:
                 urllib.request.urlretrieve(url, pth, dlProgress)
+                sys.stdout.write("\n")
+                return
             except Exception:
                 tries -= 1
                 time.sleep(1)
                 pkg['logger'].info('Retrying')
         pkg['logger'].info('FAILED')
         raise ValueError(f'FAILED: {url}')
+
+    pkg["logger"].info("Downloading " + pkg["url"])
+
+    if not pkg['dry_run']:
+        url = pkg['url']
+        pth = get_url_archive_path(pkg)
+        download_url(url, pth)
 
     return get_url_archive_file_name(pkg)
 
