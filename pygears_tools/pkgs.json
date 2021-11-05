@@ -180,7 +180,7 @@
     {
         "name": "gearbox",
         "class": ["all", "dev", "gui"],
-        "pip" : "git+git://github.com/QDevil/gearbox.git",
+        "pip" : "git+git://github.com/QDevil/gearbox.git@09fb1c07fcbe",
         "deps": {
             "ubuntu": "git libqt5gui5",
             "opensuse": "git"
